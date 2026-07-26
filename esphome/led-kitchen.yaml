@@ -1,0 +1,95 @@
+substitutions:
+  device_name: led-kitchen
+  friendly_name: "Kitchen LED"
+  fade_time: 3s
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Kitchen LED Setup"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+# Three dimmable MOSFET inputs and one on/off LED output from the screenshots.
+output:
+  - platform: ledc
+    pin: GPIO12
+    id: pwm_divan
+    frequency: 1000 Hz
+    min_power: 0%
+    max_power: 100%
+    zero_means_zero: true
+
+  - platform: gpio
+    pin: GPIO27
+    id: output_hny
+
+  - platform: ledc
+    pin: GPIO13
+    id: pwm_stol
+    frequency: 1000 Hz
+    min_power: 0%
+    max_power: 100%
+    zero_means_zero: true
+
+  - platform: ledc
+    pin: GPIO14
+    id: pwm_kitchen
+    frequency: 1000 Hz
+    min_power: 0%
+    max_power: 100%
+    zero_means_zero: true
+
+light:
+  - platform: monochromatic
+    id: light_divan
+    name: "Диван"
+    object_id: led_kitchen_divan
+    output: pwm_divan
+    default_transition_length: ${fade_time}
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  - platform: monochromatic
+    id: light_stol
+    name: "Стол"
+    object_id: led_kitchen_stol
+    output: pwm_stol
+    default_transition_length: ${fade_time}
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  - platform: monochromatic
+    id: light_kitchen
+    name: "Кухня"
+    object_id: led_kitchen_kitchen
+    output: pwm_kitchen
+    default_transition_length: ${fade_time}
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  # GPIO27 is a separate non-dimmable LED channel controlled from Home Assistant.
+  - platform: binary
+    id: light_hny
+    name: "HNY"
+    object_id: led_kitchen_hny
+    output: output_hny
+    restore_mode: RESTORE_DEFAULT_OFF
