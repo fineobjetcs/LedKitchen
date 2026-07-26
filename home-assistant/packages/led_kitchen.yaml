@@ -1,0 +1,31 @@
+# Add `packages: !include_dir_named packages` below `homeassistant:` in
+# configuration.yaml, then copy this file into Home Assistant's packages folder.
+group:
+  led_kitchen:
+    name: "Kitchen LED"
+    entities:
+      - light.led_kitchen_divan
+      - light.led_kitchen_stol
+      - light.led_kitchen_kitchen
+      - light.led_kitchen_hny
+
+script:
+  led_kitchen_on:
+    alias: "Kitchen LED — smooth on"
+    icon: mdi:lightbulb-group
+    sequence:
+      - action: light.turn_on
+        target:
+          entity_id: group.led_kitchen
+        data:
+          transition: 3
+
+  led_kitchen_off:
+    alias: "Kitchen LED — smooth off"
+    icon: mdi:lightbulb-group-off
+    sequence:
+      - action: light.turn_off
+        target:
+          entity_id: group.led_kitchen
+        data:
+          transition: 3
